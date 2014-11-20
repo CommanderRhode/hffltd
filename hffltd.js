@@ -2,7 +2,8 @@ var http = require('http');
 var fs = require('fs');
 
 http.createServer(function (req, res) {
-  var fileLocation = 'static' + req.url + '.html'
+  var fileLocation = determinFileRequested(req.url);
+  
   if (fs.existsSync(fileLocation)) //lets get that file
     {
       serveContent(fileLocation, res, 200);
@@ -14,6 +15,13 @@ http.createServer(function (req, res) {
   
 }).listen(3000, '0.0.0.0');
 console.log('Server running at http://0.0.0.0:3000/');
+
+function determinFileRequested(requestedURL) {
+  if ((requestedURL.indexOf('.html') + requestedURL.indexOf('.jpg') + requestedURL.indexOf('.css')) ==-3) {
+    return 'static' + requestedURL + '.html';
+  } 
+  return 'static' + requestedURL;
+}
 
 function serveContent(fileLocation, response, statusCode) {
   fs.readFile(fileLocation, function (err, data) {
