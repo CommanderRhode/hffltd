@@ -1,27 +1,25 @@
 var http = require('http');
 var fs = require('fs');
+
 http.createServer(function (req, res) {
-  var responseMessage = 'HFF Ltd Web Server.\n' + 'request for: ' + req.url;
-  if (fs.existsSync('static' + req.url + '.html'))
-    //lets get that file
+  var fileLocation = 'static' + req.url + '.html'
+  if (fs.existsSync(fileLocation)) //lets get that file
     {
-      fs.readFile('static' + req.url + '.html', function (err, data) {
-        if (err) throw err;
-        responseMessage = data;
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end(responseMessage);
-      });
+      serveContent(fileLocation, res, 200);
     }
-  else
-    //my 404 message
+  else //my 404 message
     {
-      fs.readFile('static/404.html', function (err, data) {
-        if (err) throw err;
-        responseMessage = data;
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.end(responseMessage);
-      });
+      serveContent('static/404.html', res, 404);
     }
   
 }).listen(3000, '0.0.0.0');
 console.log('Server running at http://0.0.0.0:3000/');
+
+function serveContent(fileLocation, response, statusCode) {
+  fs.readFile(fileLocation, function (err, data) {
+    if (err) throw err;
+    response.writeHead(statusCode, {'Content-Type': 'text/html'});
+    response.end(data);
+    console.log('SERVED: ' + fileLocation);
+  })
+}
