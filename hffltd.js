@@ -4,12 +4,24 @@ http.createServer(function (req, res) {
   var responseMessage = 'HFF Ltd Web Server.\n' + 'request for: ' + req.url;
   if (fs.existsSync('static' + req.url + '.html'))
     //lets get that file
-    {responseMessage += ' EXISTS!'; }
+    {
+      fs.readFile('static' + req.url + '.html', function (err, data) {
+        if (err) throw err;
+        responseMessage = data;
+        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.end(responseMessage);
+      });
+    }
   else
     //my 404 message
-    {responseMessage += ' is not here'; }
-
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end(responseMessage);
+    {
+      fs.readFile('static/404.html', function (err, data) {
+        if (err) throw err;
+        responseMessage = data;
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end(responseMessage);
+      });
+    }
+  
 }).listen(3000, '0.0.0.0');
 console.log('Server running at http://0.0.0.0:3000/');
