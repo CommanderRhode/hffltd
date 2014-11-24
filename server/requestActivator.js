@@ -1,43 +1,40 @@
 var fs = require('fs');
 
 module.exports = {
-  processRequest: function (requestedURL, response) {
-    //examine request type
-    
-    
-    //composite response
-    
-    var fileLocation = determinFileRequested(requestedURL);
-    var contentType = selectContentType(requestedURL);
-    if (fs.existsSync(fileLocation)) //lets get that file
-    {
-      serveContent(fileLocation, response, 200, contentType);
-    }
-    else //my 404 message
-    {
-      serveContent('static/404.html', response, 404, contentType);
-    }
-  }
-};
-  
-  function determinFileRequested(requestedURL) {
-    if ((requestedURL.indexOf('.html') + requestedURL.indexOf('.jpg') + requestedURL.indexOf('.css')) ==-3) {
-      return 'static' + requestedURL + '.html';
-    } 
-    return 'static' + requestedURL;
-  }
-  
-  function selectContentType(requestedURL){
-    if (requestedURL.indexOf('.html')) return 'text/html';
-    if (requestedURL.indexOf('.css')) return 'text/css';
-    if (requestedURL.indexOf('.jpg')) return 'image/jpeg';
-  }
-  
-  function serveContent(fileLocation, response, statusCode, contentType) {
-    fs.readFile(fileLocation, function (err, data) {
+  processRequest: function (requestedURL, httpResponse) {
+    console.log('REQUESTED: ' + requestedURL);
+    var thisresponse = new response(requestedURL);
+    fs.readFile(thisresponse.servedFile, function (err, data) {
     if (err) throw err;
-      response.writeHead(statusCode, {'Content-Type': contentType});
-      response.end(data);
-      console.log('SERVED: ' + fileLocation);
+      httpResponse.writeHead(thisresponse.statusCode, {'Content-Type': thisresponse.contentType});
+      httpResponse.end(data);
+      console.log('SERVED: ' + thisresponse.servedFile);
     });
   }
+};
+
+function response(requestedURL) {
+  if (requestedURL.indexOf('.')==-1) requestedURL += '.html'
+  var fileExtension = requestedURL.substring(requestedURL.indexOf('.'));
+  this.servedFile = 'static' + requestedURL; 
+  if (!fs.existsSync(this.servedFile)) fileExtension = '404'; 
+  switch(fileExtension) {
+    case '.html':
+      this.contentType = 'text/html';
+      this.statusCode = 200;
+      break;
+    case '.jpg':
+      this.contentType = 'image/jpeg';
+      this.statusCode = 200;
+      break;
+    case '.css':
+      this.contentType = 'text/css';
+      this.statusCode = 200;
+      break;
+    default:
+      this.contentType = 'text/html'
+      this.statusCode = 404;
+      this.servedFile = 'static/404.html'
+      break;
+  }
+}
