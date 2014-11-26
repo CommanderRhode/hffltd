@@ -17,9 +17,8 @@ Setup yor GitHub account on the VM using the steps described <a href="http://hel
 Clone the git repo by doing the following in the VM Console.
 
 <code>
-cd workspace
+cd workspace /n
 git clone git@github.com:CommanderRhode/hffltd.git
-
 </code>
 
 ## Starting up the server ##
